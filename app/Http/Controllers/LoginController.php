@@ -33,5 +33,6 @@ class LoginController extends Controller
         }
 
         return response()->json('User unauthorized', Response::HTTP_UNAUTHORIZED);
+        return response()->json('User unauthorized', Response::HTTP_UNAUTHORIZED);
     }
 }
