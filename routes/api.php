@@ -25,4 +25,3 @@ Route::post('/verify-email', [SendVerificationEmail::class, 'sendVerificationEma
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/verify', [VerificationController::class, 'verify']);
 Route::post('/login', [LoginController::class, 'login']);
-//sa
