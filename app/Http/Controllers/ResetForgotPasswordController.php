@@ -18,10 +18,19 @@ class ResetForgotPasswordController extends Controller
         ]);
 
         // メールアドレスを検索
-        $user = User::where('email', $request->email)->where('password_reset_token', hash('sha256', $request->token))->first();
+        $user = User::where('email', $request->email)->first();
 
-        if (!$user || !$this->tokenIsValid($user)) {
-            return response()->json(['message' => 'This password reset token is invalid.'], 422);
+        if (!$user) {
+            return response()->json(['message' => 'User with this email does not exist.', 'email' => $request->email], 422);
+        }
+
+        if (!$this->tokenIsCorrect($user, $request->token)) {
+            return response()->json(['message' => 'This password reset token is invalid.', 'token' => $request->token, 'user' => $user], 422);
+        }
+
+        // 有効期限切れの場合にエラーを返す
+        if (!$this->tokenIsNotExpired($user)) {
+            return response()->json(['message' => 'This password reset token has expired.', 'token' => $request->token], 422);
         }
 
         // パスワードリセット
@@ -33,8 +42,13 @@ class ResetForgotPasswordController extends Controller
         return response()->json(['message' => 'Password has been reset.', 'user' => $user]);
     }
 
-    private function tokenIsValid($user) {
+    private function tokenIsCorrect($user, $token) {
+        return $token === $user->password_reset_token;
+    }
+
+
+    private function tokenIsNotExpired($user) {
         $expiration = Carbon::parse($user->password_reset_expires_at);
-        return Carbon::now()->lessThan($expiration);
+        return $expiration->diffInMinutes(Carbon::now()) <= 60;
     }
 }

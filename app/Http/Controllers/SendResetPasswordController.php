@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use App\Mail\ResetPasswordMail;
+use Illuminate\Support\Carbon;
+
 //パスワードをリセットするためのメールを送るAPI
 class SendResetPasswordController extends Controller
 {
@@ -24,6 +26,7 @@ class SendResetPasswordController extends Controller
         // ユーザーが存在する場合は、パスワードリセット用のURLを生成し、メールで送信します
         $token = Str::random(60); // 60文字のランダムなトークンを生成
         $user->password_reset_token = hash('sha256', $token);
+        $user->password_reset_expires_at = Carbon::now(); // 現在の時間を設定
         $user->save();
 
         // URL生成
