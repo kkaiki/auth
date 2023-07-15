@@ -20,7 +20,8 @@ class ResetPasswordMail extends Mailable
 
     public function build()
     {
-        return $this->view('emails.reset_password')
+        return $this->subject('パスワードリセット')
+                    ->text('emails.plain_reset_password')
                     ->with([
                         'url' => $this->url,
                     ]);

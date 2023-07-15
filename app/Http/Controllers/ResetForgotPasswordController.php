@@ -2,38 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Str;
-use App\Mail\ResetPasswordMail;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use Illuminate\Support\Carbon;
 
-class ForgotPasswordController extends Controller
+class ResetForgotPasswordController extends Controller
 {
-    public function sendResetLinkEmail(Request $request)
+    public function reset(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate([
+            'email' => 'required|email',
+            'token' => 'required',
+            'password' => 'required|min:8|confirmed',
+        ]);
 
-        $user = User::where('email', $request->email)->first();
+        // メールアドレスを検索
+        $user = User::where('email', $request->email)->where('password_reset_token', hash('sha256', $request->token))->first();
 
-        if (!$user) {
-            return response()->json(['message' => 'Invalid email.'], 422);
+        if (!$user || !$this->tokenIsValid($user)) {
+            return response()->json(['message' => 'This password reset token is invalid.'], 422);
         }
 
-        // ユーザーが存在する場合は、パスワードリセット用のURLを生成し、メールで送信します
-        $token = Str::random(60); // 60文字のランダムなトークンを生成
-        $user->password_reset_token = hash('sha256', $token);
+        // パスワードリセット
+        $user->password = Hash::make($request->password);
+        $user->password_reset_token = null;
+        $user->password_reset_expires_at = null;
         $user->save();
 
-        // URL生成
-        $url = URL::temporarySignedRoute(
-            'reset-password', now()->addMinutes(30), ['token' => $token] // ここを30に変更
-        );
+        return response()->json(['message' => 'Password has been reset.', 'user' => $user]);
+    }
 
-        // メール送信
-        Mail::to($request->email)->send(new ResetPasswordMail($url));
-
-        return response()->json(['message' => 'Reset password link sent on your email id.']);
+    private function tokenIsValid($user) {
+        $expiration = Carbon::parse($user->password_reset_expires_at);
+        return Carbon::now()->lessThan($expiration);
     }
 }

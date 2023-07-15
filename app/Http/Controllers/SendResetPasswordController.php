@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use App\Mail\ResetPasswordMail;
-
-class ResetPasswordForgotController extends Controller
+//パスワードをリセットするためのメールを送るAPI
+class SendResetPasswordController extends Controller
 {
     public function sendResetLinkEmail(Request $request)
     {
@@ -34,6 +34,6 @@ class ResetPasswordForgotController extends Controller
         // メール送信
         Mail::to($request->email)->send(new ResetPasswordMail($url));
 
-        return response()->json(['message' => 'Reset password link sent on your email id.']);
+        return response()->json(['message' => 'Reset password link sent on your email id.', 'user' => $user]);
     }
 }
