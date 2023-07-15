@@ -3,9 +3,11 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SendVerificationEmail;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ResetForgotPasswordController;
+use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\SendResetPasswordController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Password;
@@ -44,5 +46,6 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/verify', [VerificationController::class, 'verify']);
 Route::post('/login', [LoginController::class, 'login']);
 
+Route::post('/password', [PasswordController::class, 'authenticate']);
 Route::post('/password/email', [SendResetPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/password/reset', [ResetForgotPasswordController::class, 'reset']);
