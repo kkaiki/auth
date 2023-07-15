@@ -10,22 +10,28 @@ class PasswordController extends Controller
 {
     public function authenticate(Request $request)
     {
+        // 入力バリデーション
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:8',
+            'password_confirm' => 'required|min:8|same:password',
+        ]);
+
         // ユーザーの認証
         $user = User::where('email', $request->email)->first();
 
-        // ユーザーが存在しない場合はエラー
+        // ユーザーが存在しない、またはユーザーのverification_code_checkedが0の場合はエラー
         if (!$user) {
-            return response()->json(['message' => 'Invalid email.'], 422);
+            return response()->json(['message' => 'Invalid user.'], 422);
         }
 
-        // パスワードが一致しない場合はエラー
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid password.'], 422);
+        if ($user->verification_code_checked == 0) {
+            return response()->json(['message' => 'Not Authrize'], 422);
         }
 
-        // 認証成功
-        // ここで適切なレスポンスを返すか、必要な処理を実行します
-        // 例えば、トークンの生成やセッションの作成など
+        // 入力されたパスワードをハッシュ化して保存
+        $user->password = Hash::make($request->password);
+        $user->save();
 
         return response()->json(['message' => 'Authentication successful.']);
     }

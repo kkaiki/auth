@@ -10,6 +10,9 @@ use App\Http\Controllers\ResetForgotPasswordController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\SendResetPasswordController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\UserController;
+
 use Illuminate\Support\Facades\Password;
 
 /*
@@ -29,7 +32,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('api')->group(function () {
     // 既存のルート...
 
-    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('reset-password');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('reset-password');
 });
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
@@ -49,3 +52,6 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/password', [PasswordController::class, 'authenticate']);
 Route::post('/password/email', [SendResetPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/password/reset', [ResetForgotPasswordController::class, 'reset']);
+Route::post('/password-reset', [PasswordResetController::class, 'reset']);
+Route::post('/user/info', [PasswordResetController::class, 'reset']);
+Route::get('/user', [UserController::class, 'getUser']);
