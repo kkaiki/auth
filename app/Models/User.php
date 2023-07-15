@@ -23,6 +23,8 @@ class User extends Authenticatable
         'verification_code', // 追加した認証コードの属性を追加
         'verification_code_created_at',
         'verification_code_checked',
+        'password_reset_token',
+        'password_reset_expires_at',
     ];
 
     /**
