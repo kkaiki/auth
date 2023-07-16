@@ -26,7 +26,7 @@ class VerificationController extends Controller
         $user->email_verified_at = Carbon::now();
         $user->verification_code = null; // コードをクリア
         $user->verification_code_created_at = null; // コード発行時間をクリア
-        $user->verification_code_checked = true;
+        $user->verification_code_checked = 1;
         $user->save();
 
         return response()->json(['message' => 'Email verified successfully.', 'user' => $user]);
